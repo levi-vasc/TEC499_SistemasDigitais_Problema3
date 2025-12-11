@@ -24,12 +24,66 @@ O sistema opera através de uma interface híbrida (texto e gráfica via VGA) co
 
 * **Interação via Mouse:**
   * Uso do mouse para definir, através de dois cliques, uma região de interesse (janela) na tela;
-  * Exibição das coordenadas (x, y) do mouse em tempo real na interface de texto.
+  * Exibição das coordenadas (x, y) do mouse em tempo real na interface de texto;
+  * Exibição do cursor no VGA.
 
 * **Controle de Zoom:**
   * Aplicação do zoom na região selecionada desenhada sobre a imagem original;
   * Uso da tecla `+` para realizar zoom in na janela;
   * Uso da tecla `-` para realizar zoom out até retornar a imagem ao estado original.
+</details>
+
+---
+<details>
+  <summary><h2>🛠 Ferramentas Utilizadas</h2></summary>
+
+## Hardware
+### Kit de desenvolvimento DE1-SoC
+O projeto foi desenvolvido no kit de desenvolvimento DE1-SoC, que integra em um único chip um processador ARM e uma FPGA Cyclone V. Para mais informações, é possível consultar o [manual](https://drive.google.com/file/d/1dBaSfXi4GcrSZ0JlzRh5iixaWmq0go2j/view).
+
+#### FPGA (Field-Programmable Gate Array)
+- Modelo **Altera Cyclone® V SE 5CSEMA5F31C6N**
+- **110K Logic Elements (LEs)**
+- **Blocos M10K** para armazenamento 
+- **USB-Blaster II** onboard (para programação); Modo JTAG
+- VGA DAC (DACs triplos de alta velocidade de 8 bits) com conector de saída VGA
+- Capaz de implementar:
+  - Coprocessadores;  
+  - RAM interna;  
+  - Controle VGA;  
+  - Máquinas de estado e pipelines.
+ 
+#### HPS (Hard Processor System)
+- **ARM Cortex-A9 Dual-Core**
+- 1 Gigabit Ethernet PHY com conector RJ45
+- Host USB de 2 portas, conector USB tipo A normal  
+- Baseado na **Arquitetura ARMv7-A**  
+  - Suporte a NEON SIMD;  
+  - Suporte a MMU (Memory Management Unit);  
+  - Conjunto de instruções ARM e Thumb-2.  
+- Subsystem incluído:
+  - Controlador DDR3;  
+  - UART, I²C, SPI;  
+  - Timers, GIC (interrupt controller).
+ 
+<img width="464" height="354" alt="placaSD" src="https://github.com/user-attachments/assets/8ba7c8be-ecc2-468f-8c1b-c44e2e5f05de" />
+
+## Software
+O projeto foi desenvolvido nas ferramentas **Quartus Prime** e **Visual Studio Code**, que em conjunto oferecem todo o suporte necessário tanto para o desenvolvimento em FPGA quanto para a implementação da API em Assembly ARMv7 e código C no ambiente Linux do HPS.  
+O Quartus Prime possibilita configurar pinos, validar o hardware e gerar o projeto para a placa DE1-SoC, enquanto o Visual Studio Code fornece um ambiente leve e eficiente para edição, organização e compilação do código de software.
+
+### Quartus Prime
+- Versão utilizada: **23.1 Lite**
+- Principais ferramentas:
+  - **Editor de código**: permite escrever código em Verilog;
+  - **Compilador/Síntese**: traduz o código HDL em uma representação lógica (netlist);
+  - **Programador**: carrega o arquivo final (.sof) para o dispositivo FPGA real.
+ 
+### Visual Studio Code
+- Versão utilizada: **1.107.0**
+- Principais ferramentas:
+  - **Editor de código**: moderno e interativo, suporta C e Assembly;
+  - **Extensões**: disponibiliza diversas extensões que estilizam o código e facilitam o desenvolvimento da programação. 
 </details>
 
 ---
