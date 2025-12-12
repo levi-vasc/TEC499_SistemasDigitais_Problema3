@@ -87,3 +87,13 @@ O Quartus Prime possibilita configurar pinos, validar o hardware e gerar o proje
 </details>
 
 ---
+<details>
+  <summary><h2>🗺Tutorial de Instalação e Execução</h2></summary>
+</details>
+
+---
+<details>
+  <summary><h2> 🔍Testes e Análise de Resultados</h2></summary>
+</details>
+
+---
