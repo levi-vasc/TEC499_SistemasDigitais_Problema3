@@ -100,6 +100,19 @@ O Quartus Prime possibilita configurar pinos, validar o hardware e gerar o proje
 ---
 <details>
   <summary><h2>🗺Tutorial de Instalação e Execução</h2></summary>
+
+## Compilação e execução no Quartus
+
+> [!IMPORTANT]
+> Para realizar essa etapa, é necessário ter o Quartus instalado no computador. Além disso, certifique-se de que a placa está ligada e conectada ao computador pela porta **USB Blaster-II** e ao display de destino pela saída **VGA**.
+
+1. Faça o download da pasta `Coprocessador`, presente neste repositório;
+2. Abra o Quartus;
+3. Clique em `Open Project`;
+4. No explorador de arquivos, abra `soc_system.qpf`, que está dentro da pasta do projeto;
+5. Clique em `Start Compilation`, representado por uma seta azul na barra de ferramentas;
+6. Aguarde a barra de `Compile Design` da aba Task chegar a 100%.
+
 </details>
 
 ---
