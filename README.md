@@ -14,7 +14,7 @@ Para mais informações sobre a integração entre o HPS e FPGA da placa, além 
 ## Funcionalidades implementadas 
 O sistema opera através de uma interface híbrida (texto e gráfica via VGA) com as seguintes capacidades:
 
-* **Carregamento de Imagem:** Leitura de arquivos de imagem no formato bitmap para a memória do sistema.
+* **Carregamento de Imagem:** Leitura de arquivos de imagem no formato **bitmap (.bmp) de 24 bits** para a memória do sistema. A API converte a imagem para um formato de **8 bits** em **escala de cinza** para ser exibida no VGA.
 
 * **Seleção de Algoritmos:** Interface textual para escolha do método de zoom a ser aplicado.
   * Vizinho mais próximo para zoom in;
@@ -28,9 +28,11 @@ O sistema opera através de uma interface híbrida (texto e gráfica via VGA) co
   * Exibição do cursor no VGA.
 
 * **Controle de Zoom:**
-  * Aplicação do zoom na região selecionada desenhada sobre a imagem original;
-  * Uso da tecla `+` para realizar zoom in na janela;
-  * Uso da tecla `-` para realizar zoom out até retornar a imagem ao estado original.
+  * Zoom ajustado em passos discretos de **2x**;
+  * Aplicação do zoom na imagem inteira, com limite máximo de **8x** e mínimo de **0,125x** (1/8 do tamanho original);
+  * Aplicação do zoom na região selecionada desenhada sobre a imagem original, com limite máximo de **4x** e mínimo de **1x** (estado original da imagem);
+  * Uso da tecla `+` para realizar zoom in;
+  * Uso da tecla `-` para realizar zoom out.
 </details>
 
 ---
@@ -68,8 +70,17 @@ O projeto foi desenvolvido no kit de desenvolvimento DE1-SoC, que integra em um 
  
 <img width="464" height="354" alt="placaSD" src="https://github.com/user-attachments/assets/8ba7c8be-ecc2-468f-8c1b-c44e2e5f05de" />
 
+### Ambiente de teste e desenvolvimento
+#### **Computador host**
+  - Utilizado para desenvolvimento da solução de software e hardware
+  - Conexão física com a placa de desenvolvimento através das interfaces **USB-Blaster II** (para programação e depuração do FPGA/HPS) e **Ethernet** (para comunicação de dados)
+#### Periféricos
+  - **Monitor VGA:** Um monitor capaz de exibir a resolução **640x480 a 60Hz** para conexão direta à saída VGA da placa
+  - **Mouse:** Utilizado para interação com a interface gráfica/visualização, conectado à porta **USB Host** da placa
+  - **Teclado:** Conectado ao computador host para interação via terminal    
+
 ## Software
-O projeto foi desenvolvido nas ferramentas **Quartus Prime** e **Visual Studio Code**, que em conjunto oferecem todo o suporte necessário tanto para o desenvolvimento em FPGA quanto para a implementação da API em Assembly ARMv7 e código C no ambiente Linux do HPS.  
+Foram utilizadas as ferramentas **Quartus Prime** e **Visual Studio Code**, que em conjunto oferecem todo o suporte necessário tanto para o desenvolvimento em FPGA quanto para a implementação da API em Assembly ARMv7 e código C no ambiente Linux do HPS.  
 O Quartus Prime possibilita configurar pinos, validar o hardware e gerar o projeto para a placa DE1-SoC, enquanto o Visual Studio Code fornece um ambiente leve e eficiente para edição, organização e compilação do código de software.
 
 ### Quartus Prime
