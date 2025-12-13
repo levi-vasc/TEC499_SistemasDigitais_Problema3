@@ -367,6 +367,8 @@ Apesar dessas limitações, o sistema atende plenamente aos requisitos propostos
 
 <details>
   <summary><h2> 🔍Testes e Análise de Resultados</h2></summary>
+
+# Testes
   
 ## 1. Inicialização do Sistema
 
@@ -472,6 +474,36 @@ Entra-se então no Modo Interativo, onde não é necessário pressionar Enter ap
 <p align="center">
 <img width="400" height="230" alt="image" src="https://github.com/user-attachments/assets/7ac4be9a-14e1-4539-85fb-2faf92531b46" />
 </p>
+
+# Análise de Resultados
+O sistema desenvolvido na plataforma DE1-SoC demonstrou sucesso na integração entre a aplicação em nível de usuário (C), a camada de drivers (Assembly) e o hardware dedicado (FPGA). A solução atendeu aos requisitos de processamento de imagens, permitindo a manipulação de arquivos bitmap com interação via mouse.
+
+ ### **1. Comparativo de Algoritmos de Zoom**
+Durante os testes, foi possível observar diferenças qualitativas claras entre as técnicas implementadas:
+
+**Zoom In (Ampliação):**
+
+O método do Vizinho Mais Próximo e a Replicação de Pixels apresentaram resultados satisfatórios para a visualização de detalhes. Como esperado, em níveis elevados de zoom (ex: 8x), o efeito de "pixelização" torna-se evidente, mas preserva a nitidez das bordas originais sem introduzir borrões, o que é útil para inspeção digital.
+
+**Zoom Out (Redução):**
+
+A diferença entre os algoritmos foi mais crítica nesta etapa. O método do Vizinho Mais Próximo (decimação) mostrou-se rápido, porém suscetível à perda de informação (aliasing) e ruído visual, uma vez que descarta pixels arbitrariamente.
+
+Em contrapartida, o algoritmo de Média de Blocos provou ser superior na preservação da qualidade visual. Ao calcular a média dos pixels adjacentes para gerar o pixel reduzido, o que levou a um efeito suavizado na imagem que minimizou perdas de informações. A transição de uma imagem ampliada de volta ao tamanho original utilizando a Média de Blocos resultou em uma fidelidade maior à imagem de partida.
+
+### **2. Interface e Usabilidade**
+A implementação da seleção por janela via mouse adicionou uma camada significativa de interatividade ao projeto.
+
+A resposta do cursor em tempo real sobre a saída VGA foi precisa, permitindo ao usuário definir Regiões de Interesse (ROI) com facilidade.
+
+O feedback visual das coordenadas na interface textual auxiliou na validação dos limites da imagem (320x240), garantindo que operações fora dos limites fossem tratadas corretamente pelo software antes de serem enviadas ao hardware.
+
+### **3. Desempenho do Sistema (HPS + FPGA)**
+A arquitetura mostrou-se eficaz. O processador HPS (ARM) gerenciou a leitura do sistema de arquivos e a lógica de interface, enquanto o coprocessador na FPGA e os drivers garantiram que a manipulação dos dados de vídeo fossem manipulados na CPU. A conversão de imagens de 24 bits para escala de cinza de 8 bits conseguiu adequar o conteúdo à capacidade de exibição do controlador gráfico sem perda perceptível de funcionalidade para o propósito de análise de detalhes em cores da imagem.
+
+# Conclusão
+O projeto atingiu seu objetivo de criar um visualizador de imagens interativo com operações de zoom e funcional. Com diferenças entre algoritmos implementados, observa-se que o zoom em janela foi executado de forma bem sucedida, embora no método Vizinho Mais Próximo Out tenha apresentado qualidade inferior comparada ao de Média de Blocos, gerando imagens com ruídos.
+
 </details>
 
 ---
