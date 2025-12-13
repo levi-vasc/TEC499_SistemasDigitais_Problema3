@@ -101,7 +101,7 @@ O Quartus Prime possibilita configurar pinos, validar o hardware e gerar o proje
 <details>
   <summary><h2>🗺Tutorial de Instalação e Configuração</h2></summary>
   
-  ## 1. Pré-requisitos
+## 1. Pré-requisitos
 
 Antes de iniciar o processo de instalação, compilação e execução do projeto, certifique-se de que o ambiente de desenvolvimento atende aos seguintes requisitos.
 
@@ -120,14 +120,15 @@ Antes de iniciar o processo de instalação, compilação e execução do projet
 - **Make** para automação do processo de build
 - **Terminal Linux** com permissões para execução de binários (`sudo`, quando necessário)
   
-> **Observação:**  
+> **💡Observação**  
+>
 > Recomenda-se verificar se todas as ferramentas estão corretamente instaladas e acessíveis pelo `PATH` do sistema antes de prosseguir para as próximas etapas.
 
-### 2. Preparação do Ambiente e dos Arquivos
+## 2. Preparação do Ambiente e dos Arquivos
 
 Antes da compilação e execução do projeto, é necessário preparar o ambiente de desenvolvimento e garantir que todos os arquivos estejam corretamente posicionados.
 
-#### 2.1 Obtenção do Projeto
+### 2.1 Obtenção do Projeto
 
 Clone o repositório para a máquina local:
 
@@ -141,7 +142,7 @@ Acesse o diretório do projeto:
 cd TEC499_SistemasDigitais_Problema3
 ```
 
-#### 2.2 Organização dos Arquivos
+### 2.2 Organização dos Arquivos
 
 Certifique-se de que os arquivos do projeto estejam distribuídos conforme o repositório original, sem alterações na hierarquia de pastas.
 A hierarquia segue dividida em:
@@ -154,7 +155,7 @@ A hierarquia segue dividida em:
 
 Nenhuma modificação estrutural é necessária para a execução padrão do projeto.
 
-#### 2.3 Verificação do Ambiente
+### 2.3 Verificação do Ambiente
 
 Antes de prosseguir para as etapas de compilação, recomenda-se verificar se as principais ferramentas estão corretamente instaladas e acessíveis pelo sistema:
 
@@ -166,29 +167,28 @@ quartus --version
 
 Caso algum dos comandos não seja reconhecido, verifique a instalação da ferramenta correspondente ou a configuração do `PATH` do sistema.
 
-### 3. Compilação e Execução do Projeto no Quartus
+## 3. Compilação e Execução do Projeto no Quartus
 
-Para compilar e executar o projeto, é necessário ter o Quartus instalado. Além disso, faça o download da pasta `Coprocesssador`.
-Após atender aos requisitos acima, pode-se avançar para a compilação do projeto. Os próximos passos são:
+> **💡 Importante**
+> 
+> Para compilar e executar o projeto, é necessário ter o Quartus instalado. Certifique-se de que a placa esteja ligada e conectada ao computador pela porta **USB Blaster-II** e ao display de destino pela saída **VGA**.
 
 1. Abra o Quartus;
-2. Clique em `Open Project`;
-3. No explorador de arquivos, abra `soc_system.qpf`, que está dentro da pasta do projeto;
-4. Clique em `Start Compilation`, representado por uma seta azul na barra de ferramentas;
-5. Aguarde a barra de `Compile Design` da aba Task chegar a 100% (indica que a compilação foi concluída).
+3. Clique em `Open Project`;
+4. No explorador de arquivos, abra `soc_system.qpf`, que está dentro da pasta do projeto;
+5. Clique em `Start Compilation`, representado por uma seta azul na barra de ferramentas;
+6. Aguarde a barra de `Compile Design` da aba Task chegar a 100% (indica que a compilação foi concluída).
 
 ![tutorial1](https://github.com/user-attachments/assets/a9974525-1d1c-44ca-a538-37d585551a9e)
 
-Após isso, o projeto está pronto para ser executado. Certifique-se de que a placa está conectada ao computador através do `USB Blaster-II`e ao monitor por meio da saída VGA. Siga os seguintes passos:
-
-1. Clique em `Programmer`, representado por um losango, na barra de ferramentas;
-2. Na nova janela, clique em `Hardware Setup`;
-3. Dê dois cliques em `DE-SoC` e feche a janela;
-4. Clique em `Auto Detect` e selecione a segunda opção (`5CSEMA5`) na nova janela;
-5. Clique em "Yes" na nova janela;
-6. Exclua e segundo arquivo da lista, e posteriormente clique em `Add File`;
-7. No explorador de arquivos, acesse a pasta `output_files` do projeto e selecione `soc_system.sof`;
-8. Clique em `Start` e aguarde a barra progress chegar a 100%.
+7. Clique em `Programmer`, representado por um losango, na barra de ferramentas;
+8. Na nova janela, clique em `Hardware Setup`;
+9. Dê dois cliques em `DE-SoC` e feche a janela;
+10. Clique em `Auto Detect` e selecione a segunda opção (`5CSEMA5`) na nova janela;
+11. Clique em "Yes" na nova janela;
+12. Exclua e segundo arquivo da lista, e posteriormente clique em `Add File`;
+13. No explorador de arquivos, acesse a pasta `output_files` do projeto e selecione `soc_system.sof`;
+14. Clique em `Start` e aguarde a barra progress chegar a 100%.
 
 ![tutorial2](https://github.com/user-attachments/assets/1d68b321-1214-4f51-963a-b5d2e787911b)
 
@@ -196,7 +196,10 @@ O monitor deve exibir uma imagem pré-definida após execução.
 
 ## 4. Compilação e Linkagem do Código no HPS
 
-> ⚠️ **Importante:**
+> **💡Importante**
+>
+> Certifique-se de que a placa está ligada e conectada a mesma rede do computador host pela interface **Ethernet**
+>
 > Este tutorial assume que a placa utilizada é uma das disponibilizadas pela UEFS. Caso utilize outra placa, verifique o **nome de usuário**, o **endereço IP** e a **organização dos diretórios**. Substitua aluno e o IP usados nos exemplos pelas informações específicas da sua placa.
 
 Com o hardware pronto, deve-se transferir a aplicação e a API para o ambiente Linux da DE1-SoC. Utilizaremos o protocolo `ssh` para estabelecer a conexão:
@@ -205,9 +208,9 @@ Com o hardware pronto, deve-se transferir a aplicação e a API para o ambiente 
 ssh aluno@172.65.213.120
 ```
 
-> **💡Lembrete Importante:**  
-> Ao configurar o acesso SSH ou a comunicação com o HPS, **substitua sempre os últimos 3 números do endereço IP** pelo IP correspondente à sua placa DE1-SoC.  
-> Cada placa utiliza um IP diferente na rede local, portanto ajuste antes de executar qualquer comando de conexão.
+> **💡Lembrete**  
+>
+> Ao configurar o acesso SSH ou a comunicação com o HPS, **substitua sempre os últimos 3 números do endereço IP** pelo IP correspondente à sua placa DE1-SoC. Cada placa utiliza um IP diferente na rede local, portanto ajuste antes de executar qualquer comando de conexão.
 
 Em seguida, transfira os arquivos da pasta API do computador host para a placa. No host, navegue até o diretório da API e execute:
 
@@ -239,14 +242,15 @@ Os próximos passos serão detalhados na próxima seção, [Testes e Análise de
 <details>
   <summary><h2> 🔍Testes e Análise de Resultados</h2></summary>
   
-  ### 1. Inicialização do Sistema
+## 1. Inicialização do Sistema
 
-  Após a programação da FPGA e a execução do binário no HPS por meio do comando:
+Após a programação da FPGA e a execução do binário no HPS por meio do comando:
   
 ```bash
 sudo ./main
 ```
-o sistema inicializa a API de comunicação com o coprocessador gráfico, realizando o mapeamento da memória e dos registradores do hardware. Em caso de sucesso, a mensagem de confirmação é exibida no terminal, indicando que o sistema está pronto para operação. O menu inicial é exibido com as opções:
+
+O sistema inicializa a API de comunicação com o coprocessador gráfico, realizando o mapeamento da memória e dos registradores do hardware. Em caso de sucesso, a mensagem de confirmação é exibida no terminal, indicando que o sistema está pronto para operação. O menu inicial é exibido com as opções:
 
 ```bash
 Escolha uma opção:
@@ -270,17 +274,16 @@ Neste estado inicial, a imagem previamente carregada na memória do coprocessado
 <img width="400" height="230" alt="image" src="https://github.com/user-attachments/assets/b79c5456-327e-4f36-9c88-26324d39ac58" />
 </p>
 
-  ### 2. Testes de Zoom em Imagem Completa
+## 2. Testes de Zoom em Imagem Completa
 Os primeiros testes consistem na aplicação de zoom sobre a imagem inteira, utilizando os algoritmos disponíveis no menu principal da aplicação.
 
-  ### 2.1 Zoom In — Vizinho Mais Próximo
+### 2.1 Zoom In — Vizinho Mais Próximo
 Seleciona-se a opção 1 no menu.
 O usuário pressiona repetidamente a tecla `+` para aplicar zoom-in sucessivos.
 A cada acionamento, a imagem exibida no monitor VGA é ampliada por um fator de 2x (**com limite de dois passos de 2x, ou zoom-in/out total de 4x**), mantendo o comportamento esperado do algoritmo de vizinho mais próximo.
 
 **Resultado esperado:**
 A imagem torna-se progressivamente ampliada, com preservação de bordas e possível pixelização, característica do método.
-
 
 ### 2.2. Zoom Out — Vizinho Mais Próximo e Média de Blocos
 Seleciona-se a opção 3 ou 4. O usuário utiliza a tecla - para reduzir a imagem.
@@ -291,13 +294,15 @@ Seleciona-se a opção 3 ou 4. O usuário utiliza a tecla - para reduzir a image
 
 ## 3. Teste de Zoom em Janela (Seleção por Mouse)
 A funcionalidade implementada nesta etapa é a capacidade de selecionar uma área da imagem utilizando um mouse USB conectado ao kit de desenvolvimento.
+
 ### 3.1. Interação e Seleção de Área
 Ao selecionar a opção 5 (Zoom em Janela), o software inicia a captura de eventos do dispositivo /dev/input/event0.
   1. Cursor Visual: O sistema desenha e atualiza um cursor sobre a imagem no monitor VGA em tempo real (api_update_cursor), permitindo ao usuário visualizar onde está clicando.
   2. Definição da Janela: O usuário deve clicar duas vezes para definir os cantos opostos da janela (retângulo).
      * Primeiro Clique: Define o ponto inicial $(x_0, y_0)$.
-     * Segundo Clique: Define o ponto final $(x_1, y_1)$.Validação: O software verifica se a área selecionada respeita a **resolução máxima de 80x60 pixels**. Caso a área seja maior, uma mensagem de erro é exibida e o usuário deve repetir a seleção.
+     * Segundo Clique: Define o ponto final $(x_1, y_1)$.
   3. Validação: O software verifica se a área selecionada respeita a resolução máxima de 80x60 pixels. Caso a área seja maior, uma mensagem de erro é exibida e o usuário deve repetir a seleção.
+
 ```bash
 Use o mouse e clique duas vezes para selecionar a área...
 Primeiro clique: (100, 80)
@@ -320,7 +325,8 @@ Entra-se então no Modo Interativo, onde não é necessário pressionar Enter ap
 * Tecla `-`: Reverte o zoom ou aplica o algoritmo de redução sobre a janela.
 * Tecla `Esc` ou outras: Encerra o modo janela e retorna ao menu principal.
 
-> **Observação**
+> **💡 Observação**
+>
 > Toda a sequência acima é detalhada na subseção {...} que descreve o algoritmo implementado em C para recorte e zoom em área.
 
 **Resultado Esperado:** A funcionalidade permite isolar detalhes específicos da imagem original. O recorte é expandido na área selecionada, facilitando a inspeção visual de áreas pequenas. Com isso, a combinação de "Vizinho Mais Próximo In" para ampliação com "Média de Blocos" para redução deve mostrar-se eficiente para navegar entre os níveis de detalhe, sendo que a aplicação de um Zoom-Out com "Média de Blocos" retorna à imagem original, enquanto o "Vizinho Mais Próximo-Out" acarreta em ruídos (perda de informação) na imagem, em razão de sua implementação.
