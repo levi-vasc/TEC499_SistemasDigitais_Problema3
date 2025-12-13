@@ -99,25 +99,241 @@ O Quartus Prime possibilita configurar pinos, validar o hardware e gerar o proje
 
 ---
 <details>
-  <summary><h2>🗺Tutorial de Instalação e Execução</h2></summary>
+  <summary><h2>🗺Tutorial de Instalação e Configuração</h2></summary>
+  
+  ## 1. Pré-requisitos
 
-## Compilação e execução no Quartus
+Antes de iniciar o processo de instalação, compilação e execução do projeto, certifique-se de que o ambiente de desenvolvimento atende aos seguintes requisitos.
 
-> [!IMPORTANT]
-> Para realizar essa etapa, é necessário ter o Quartus instalado no computador. Além disso, certifique-se de que a placa está ligada e conectada ao computador pela porta **USB Blaster-II** e ao display de destino pela saída **VGA**.
+### 1.1 Sistema Operacional
+- **Linux**
 
-1. Faça o download da pasta `Coprocessador`, presente neste repositório;
-2. Abra o Quartus;
-3. Clique em `Open Project`;
-4. No explorador de arquivos, abra `soc_system.qpf`, que está dentro da pasta do projeto;
-5. Clique em `Start Compilation`, representado por uma seta azul na barra de ferramentas;
-6. Aguarde a barra de `Compile Design` da aba Task chegar a 100%.
+### 1.2 Ferramentas de Hardware e HDL
+- **Quartus Prime Lite** (versão recomendada: 23.1)  
+- **USB-Blaster** devidamente configurado para programação da FPGA  
+- Placa de Desenvolvimento **De1-SoC**.
+- **Mouse com conexão USB** conectado à De1-SoC (utilizado na etapa de Execução)
+
+### 1.3 Ferramentas de Software
+- **GCC** (compilador C)
+- **GNU Assembler (as)** para compilação dos arquivos Assembly
+- **Make** para automação do processo de build
+- **Terminal Linux** com permissões para execução de binários (`sudo`, quando necessário)
+  
+> **Observação:**  
+> Recomenda-se verificar se todas as ferramentas estão corretamente instaladas e acessíveis pelo `PATH` do sistema antes de prosseguir para as próximas etapas.
+
+### 2. Preparação do Ambiente e dos Arquivos
+
+Antes da compilação e execução do projeto, é necessário preparar o ambiente de desenvolvimento e garantir que todos os arquivos estejam corretamente posicionados.
+
+#### 2.1 Obtenção do Projeto
+
+Clone o repositório para a máquina local:
+
+```bash
+git clone https://github.com/levi-vasc/TEC499_SistemasDigitais_Problema3.git
+```
+
+Acesse o diretório do projeto:
+
+```bash
+cd TEC499_SistemasDigitais_Problema3
+```
+
+#### 2.2 Organização dos Arquivos
+
+Certifique-se de que os arquivos do projeto estejam distribuídos conforme o repositório original, sem alterações na hierarquia de pastas.
+A hierarquia segue dividida em:
+* ```Coprocessador``` - Pasta com os arquivos HDL que descrevem o Co-Processador Aritmético
+* ```API```  - Pasta com todos os arquivos de Software encontrados no HPS. Inclui-se:
+  * api.s - Implementação das funções em assembly para comunicação HPS-FPGA
+  * api.h - Arquivo cabeçalho com documentação e protótipos das funções em api.s
+  * main.c - Arquivo C que contém a lógica do projeto, como interfaces e chamada de funções da API.
+  * Makefile - Arquivo de Compilação e Linkagem do projeto    
+
+Nenhuma modificação estrutural é necessária para a execução padrão do projeto.
+
+#### 2.3 Verificação do Ambiente
+
+Antes de prosseguir para as etapas de compilação, recomenda-se verificar se as principais ferramentas estão corretamente instaladas e acessíveis pelo sistema:
+
+```bash
+gcc --version
+make --version
+quartus --version
+```
+
+Caso algum dos comandos não seja reconhecido, verifique a instalação da ferramenta correspondente ou a configuração do `PATH` do sistema.
+
+### 3. Compilação e Execução do Projeto no Quartus
+
+Para compilar e executar o projeto, é necessário ter o Quartus instalado. Além disso, faça o download da pasta `Coprocesssador`.
+Após atender aos requisitos acima, pode-se avançar para a compilação do projeto. Os próximos passos são:
+
+1. Abra o Quartus;
+2. Clique em `Open Project`;
+3. No explorador de arquivos, abra `soc_system.qpf`, que está dentro da pasta do projeto;
+4. Clique em `Start Compilation`, representado por uma seta azul na barra de ferramentas;
+5. Aguarde a barra de `Compile Design` da aba Task chegar a 100% (indica que a compilação foi concluída).
+
+![tutorial1](https://github.com/user-attachments/assets/a9974525-1d1c-44ca-a538-37d585551a9e)
+
+Após isso, o projeto está pronto para ser executado. Certifique-se de que a placa está conectada ao computador através do `USB Blaster-II`e ao monitor por meio da saída VGA. Siga os seguintes passos:
+
+1. Clique em `Programmer`, representado por um losango, na barra de ferramentas;
+2. Na nova janela, clique em `Hardware Setup`;
+3. Dê dois cliques em `DE-SoC` e feche a janela;
+4. Clique em `Auto Detect` e selecione a segunda opção (`5CSEMA5`) na nova janela;
+5. Clique em "Yes" na nova janela;
+6. Exclua e segundo arquivo da lista, e posteriormente clique em `Add File`;
+7. No explorador de arquivos, acesse a pasta `output_files` do projeto e selecione `soc_system.sof`;
+8. Clique em `Start` e aguarde a barra progress chegar a 100%.
+
+![tutorial2](https://github.com/user-attachments/assets/1d68b321-1214-4f51-963a-b5d2e787911b)
+
+O monitor deve exibir uma imagem pré-definida após execução.
+
+## 4. Compilação e Linkagem do Código no HPS
+
+> ⚠️ **Importante:**
+> Este tutorial assume que a placa utilizada é uma das disponibilizadas pela UEFS. Caso utilize outra placa, verifique o **nome de usuário**, o **endereço IP** e a **organização dos diretórios**. Substitua aluno e o IP usados nos exemplos pelas informações específicas da sua placa.
+
+Com o hardware pronto, deve-se transferir a aplicação e a API para o ambiente Linux da DE1-SoC. Utilizaremos o protocolo `ssh` para estabelecer a conexão:
+
+```
+ssh aluno@172.65.213.120
+```
+
+> **💡Lembrete Importante:**  
+> Ao configurar o acesso SSH ou a comunicação com o HPS, **substitua sempre os últimos 3 números do endereço IP** pelo IP correspondente à sua placa DE1-SoC.  
+> Cada placa utiliza um IP diferente na rede local, portanto ajuste antes de executar qualquer comando de conexão.
+
+Em seguida, transfira os arquivos da pasta API do computador host para a placa. No host, navegue até o diretório da API e execute:
+
+```
+scp * aluno@172.65.213.122:/home/aluno/API
+```
+
+Isso enviará todos os arquivos para a pasta `API` na placa. Depois, já no terminal da DE1-SoC, acesse essa pasta e execute:
+
+```
+make clean
+```
+
+```
+make
+```
+
+Esses comandos realizam a limpeza, compilação e linkagem da aplicação. Por fim, inicie o executável:
+
+```
+sudo ./main
+```
+
+Os próximos passos serão detalhados na próxima seção, [Testes e Análise de Resultados](testes-e-análise-de-resultados).
 
 </details>
 
 ---
 <details>
   <summary><h2> 🔍Testes e Análise de Resultados</h2></summary>
+  
+  ### 1. Inicialização do Sistema
+
+  Após a programação da FPGA e a execução do binário no HPS por meio do comando:
+  
+```bash
+sudo ./main
+```
+o sistema inicializa a API de comunicação com o coprocessador gráfico, realizando o mapeamento da memória e dos registradores do hardware. Em caso de sucesso, a mensagem de confirmação é exibida no terminal, indicando que o sistema está pronto para operação. O menu inicial é exibido com as opções:
+
+```bash
+Escolha uma opção:
+
+1. Vizinho mais próximo (Zoom In)
+2. Replicação de pixel
+3. Vizinho mais próximo (Zoom Out)
+4. Média de blocos
+5. Zoom em Janela
+6. Carregar imagem
+7. Reset
+8. Carregar pixel
+0. Sair
+
+Opção:
+```
+
+Neste estado inicial, a imagem previamente carregada na memória do coprocessador é exibida no monitor VGA em resolução 320x240 pixels, convertida para tons de cinza, como a imagem da Figura 1.
+<p align="center">Figura 1. Imagem de Resolução 320x240 em escala de cinza.</p>
+<p align="center">
+<img width="400" height="230" alt="image" src="https://github.com/user-attachments/assets/b79c5456-327e-4f36-9c88-26324d39ac58" />
+</p>
+
+  ### 2. Testes de Zoom em Imagem Completa
+Os primeiros testes consistem na aplicação de zoom sobre a imagem inteira, utilizando os algoritmos disponíveis no menu principal da aplicação.
+
+  ### 2.1 Zoom In — Vizinho Mais Próximo
+Seleciona-se a opção 1 no menu.
+O usuário pressiona repetidamente a tecla `+` para aplicar zoom-in sucessivos.
+A cada acionamento, a imagem exibida no monitor VGA é ampliada por um fator de 2x (**com limite de dois passos de 2x, ou zoom-in/out total de 4x**), mantendo o comportamento esperado do algoritmo de vizinho mais próximo.
+
+**Resultado esperado:**
+A imagem torna-se progressivamente ampliada, com preservação de bordas e possível pixelização, característica do método.
+
+
+### 2.2. Zoom Out — Vizinho Mais Próximo e Média de Blocos
+Seleciona-se a opção 3 ou 4. O usuário utiliza a tecla - para reduzir a imagem.
+
+**Comportamento**: A imagem é reduzida e centralizada ou alinhada conforme a lógica de endereçamento do hardware.
+
+**Resultado Esperado**: O "Vizinho Mais Próximo (Out)" descarta pixels sistematicamente (aliasing potencial), enquanto a "Média de Blocos" realiza uma suavização (binning), resultando em uma imagem reduzida com menos ruído visual.
+
+## 3. Teste de Zoom em Janela (Seleção por Mouse)
+A funcionalidade implementada nesta etapa é a capacidade de selecionar uma área da imagem utilizando um mouse USB conectado ao kit de desenvolvimento.
+### 3.1. Interação e Seleção de Área
+Ao selecionar a opção 5 (Zoom em Janela), o software inicia a captura de eventos do dispositivo /dev/input/event0.
+  1. Cursor Visual: O sistema desenha e atualiza um cursor sobre a imagem no monitor VGA em tempo real (api_update_cursor), permitindo ao usuário visualizar onde está clicando.
+  2. Definição da Janela: O usuário deve clicar duas vezes para definir os cantos opostos da janela (retângulo).
+     * Primeiro Clique: Define o ponto inicial $(x_0, y_0)$.
+     * Segundo Clique: Define o ponto final $(x_1, y_1)$.Validação: O software verifica se a área selecionada respeita a **resolução máxima de 80x60 pixels**. Caso a área seja maior, uma mensagem de erro é exibida e o usuário deve repetir a seleção.
+  3. Validação: O software verifica se a área selecionada respeita a resolução máxima de 80x60 pixels. Caso a área seja maior, uma mensagem de erro é exibida e o usuário deve repetir a seleção.
+```bash
+Use o mouse e clique duas vezes para selecionar a área...
+Primeiro clique: (100, 80)
+Segundo clique: (150, 120)
+```
+
+### 3.2. Configuração de Algoritmos e Modo Interativo
+Após a seleção válida da área, o sistema separa a área selecionada para zoom. O usuário é então solicitado a escolher o par de algoritmos para o zoom interativo:
+```bash
+Selecione os algoritmos desejados:
+
+1. Vizinho mais próximo In/ Vizinho mais próximo Out
+2. Replicação de pixels/ Média de blocos
+3. Vizinho mais próximo In/ Média de blocos
+4. Replicação de pixel/ Vizinho mais próximo Out
+```
+
+Entra-se então no Modo Interativo, onde não é necessário pressionar Enter após cada comando:
+* Tecla `+`: A área selecionada é ampliada utilizando o algoritmo de Zoom In escolhido.
+* Tecla `-`: Reverte o zoom ou aplica o algoritmo de redução sobre a janela.
+* Tecla `Esc` ou outras: Encerra o modo janela e retorna ao menu principal.
+
+> **Observação**
+> Toda a sequência acima é detalhada na subseção {...} que descreve o algoritmo implementado em C para recorte e zoom em área.
+
+**Resultado Esperado:** A funcionalidade permite isolar detalhes específicos da imagem original. O recorte é expandido na área selecionada, facilitando a inspeção visual de áreas pequenas. Com isso, a combinação de "Vizinho Mais Próximo In" para ampliação com "Média de Blocos" para redução deve mostrar-se eficiente para navegar entre os níveis de detalhe, sendo que a aplicação de um Zoom-Out com "Média de Blocos" retorna à imagem original, enquanto o "Vizinho Mais Próximo-Out" acarreta em ruídos (perda de informação) na imagem, em razão de sua implementação.
+
+<p align="center">Figura 2. Sequência de operação: (a) Seleção da área (pontos ilustrativos destacados em vermelho); (b) Área ampliada.</p>
+(a)
+<p align="center">
+<img width="400" height="230" alt="image" src="https://github.com/user-attachments/assets/1d8ef966-4a0b-4271-976b-eb3fbc37eb72" />
+</p>
+(b)
+<p align="center">
+<img width="400" height="230" alt="image" src="https://github.com/user-attachments/assets/7ac4be9a-14e1-4539-85fb-2faf92531b46" />
+</p>
 </details>
 
 ---
