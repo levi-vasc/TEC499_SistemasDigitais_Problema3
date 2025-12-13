@@ -147,7 +147,7 @@ cd TEC499_SistemasDigitais_Problema3
 Certifique-se de que os arquivos do projeto estejam distribuídos conforme o repositório original, sem alterações na hierarquia de pastas.
 A hierarquia segue dividida em:
 * ```Coprocessador``` - Pasta com os arquivos HDL que descrevem o Co-Processador Aritmético
-* ```API```  - Pasta com todos os arquivos de Software encontrados no HPS. Inclui-se:
+* ```zoom_digital```  - Pasta com todos os arquivos de Software encontrados no HPS. Inclui-se:
   * api.s - Implementação das funções em assembly para comunicação HPS-FPGA
   * api.h - Arquivo cabeçalho com documentação e protótipos das funções em api.s
   * main.c - Arquivo C que contém a lógica do projeto, como interfaces e chamada de funções da API.
@@ -173,7 +173,8 @@ Caso algum dos comandos não seja reconhecido, verifique a instalação da ferra
 > 
 > Para compilar e executar o projeto, é necessário ter o Quartus instalado. Certifique-se de que a placa esteja ligada e conectada ao computador pela porta **USB Blaster-II** e ao display de destino pela saída **VGA**.
 
-1. Abra o Quartus;
+1. Faça o download da pasta `Coprocessador`, presente neste repositório;
+2. Abra o Quartus;
 3. Clique em `Open Project`;
 4. No explorador de arquivos, abra `soc_system.qpf`, que está dentro da pasta do projeto;
 5. Clique em `Start Compilation`, representado por uma seta azul na barra de ferramentas;
@@ -212,13 +213,13 @@ ssh aluno@172.65.213.120
 >
 > Ao configurar o acesso SSH ou a comunicação com o HPS, **substitua sempre os últimos 3 números do endereço IP** pelo IP correspondente à sua placa DE1-SoC. Cada placa utiliza um IP diferente na rede local, portanto ajuste antes de executar qualquer comando de conexão.
 
-Em seguida, transfira os arquivos da pasta API do computador host para a placa. No host, navegue até o diretório da API e execute:
+Em seguida, transfira os arquivos da pasta zoom_digital do computador host para a placa. No host, navegue até o diretório da pasta e execute:
 
 ```
-scp * aluno@172.65.213.122:/home/aluno/API
+scp * aluno@172.65.213.122:/home/aluno/zoom_digital
 ```
 
-Isso enviará todos os arquivos para a pasta `API` na placa. Depois, já no terminal da DE1-SoC, acesse essa pasta e execute:
+Isso enviará todos os arquivos para a pasta `zoom_digital` na placa. Depois, já no terminal da DE1-SoC, acesse essa pasta e execute:
 
 ```
 make clean
@@ -234,7 +235,7 @@ Esses comandos realizam a limpeza, compilação e linkagem da aplicação. Por f
 sudo ./main
 ```
 
-Os próximos passos serão detalhados na próxima seção, [Testes e Análise de Resultados](testes-e-análise-de-resultados).
+Os próximos passos serão detalhados na próxima seção, **Testes e Análise de Resultados**.
 
 </details>
 
