@@ -45,7 +45,7 @@ O projeto foi desenvolvido no kit de desenvolvimento DE1-SoC, que integra em um 
 
 #### FPGA (Field-Programmable Gate Array)
 - Modelo **Altera Cyclone® V SE 5CSEMA5F31C6N**
-- **110K Logic Elements (LEs)**
+- **85K Logic Elements (LEs) Programáveis**
 - **Blocos M10K** para armazenamento 
 - **USB-Blaster II** onboard (para programação); Modo JTAG
 - VGA DAC (DACs triplos de alta velocidade de 8 bits) com conector de saída VGA
@@ -148,10 +148,10 @@ Certifique-se de que os arquivos do projeto estejam distribuídos conforme o rep
 A hierarquia segue dividida em:
 * ```Coprocessador``` - Pasta com os arquivos HDL que descrevem o Co-Processador Aritmético
 * ```zoom_digital```  - Pasta com todos os arquivos de Software encontrados no HPS. Inclui-se:
-  * api.s - Implementação das funções em assembly para comunicação HPS-FPGA
-  * api.h - Arquivo cabeçalho com documentação e protótipos das funções em api.s
-  * main.c - Arquivo C que contém a lógica do projeto, como interfaces e chamada de funções da API.
-  * Makefile - Arquivo de Compilação e Linkagem do projeto    
+  * `api.s` - Implementação das funções em assembly para comunicação HPS-FPGA
+  * `api.h` - Arquivo cabeçalho com documentação e protótipos das funções em api.s
+  * `main.c` - Arquivo C que contém a lógica do projeto, como interfaces e chamada de funções da API.
+  * `Makefile` - Arquivo de Compilação e Linkagem do projeto    
 
 Nenhuma modificação estrutural é necessária para a execução padrão do projeto.
 
@@ -179,7 +179,8 @@ Caso algum dos comandos não seja reconhecido, verifique a instalação da ferra
 4. No explorador de arquivos, abra `soc_system.qpf`, que está dentro da pasta do projeto;
 5. Clique em `Start Compilation`, representado por uma seta azul na barra de ferramentas;
 6. Aguarde a barra de `Compile Design` da aba Task chegar a 100% (indica que a compilação foi concluída).
-
+   
+Abaixo, segue os passos 2 a 6 em vídeo.
 ![tutorial1](https://github.com/user-attachments/assets/a9974525-1d1c-44ca-a538-37d585551a9e)
 
 7. Clique em `Programmer`, representado por um losango, na barra de ferramentas;
@@ -187,13 +188,16 @@ Caso algum dos comandos não seja reconhecido, verifique a instalação da ferra
 9. Dê dois cliques em `DE-SoC` e feche a janela;
 10. Clique em `Auto Detect` e selecione a segunda opção (`5CSEMA5`) na nova janela;
 11. Clique em "Yes" na nova janela;
-12. Exclua e segundo arquivo da lista, e posteriormente clique em `Add File`;
+12. Exclua o segundo arquivo da lista, e posteriormente clique em `Add File`;
 13. No explorador de arquivos, acesse a pasta `output_files` do projeto e selecione `soc_system.sof`;
 14. Clique em `Start` e aguarde a barra progress chegar a 100%.
 
+**Por fim, O monitor deve exibir uma imagem pré-definida após execução.**
+
+Abaixo, segue os passos 7 a 14 em vídeo.
 ![tutorial2](https://github.com/user-attachments/assets/1d68b321-1214-4f51-963a-b5d2e787911b)
 
-O monitor deve exibir uma imagem pré-definida após execução.
+
 
 ## 4. Compilação e Linkagem do Código no HPS
 
@@ -260,11 +264,11 @@ Dessa forma, toda a lógica de recorte, centralização e reinserção da regiã
 ### Seleção da Região de Interesse
 
 O processo inicia-se com a interação do usuário através do mouse. Dois cliques consecutivos definem os vértices opostos de um retângulo que representa a região de interesse na imagem exibida no monitor VGA. As coordenadas capturadas correspondem aos pontos  
-\((x_0, y_0)\) e \((x_1, y_1)\).
+$(x_0, y_0)$ e $(x_1, y_1)$.
 
 A partir desses valores, o sistema calcula:
-- \(x_min\) e \(x_max\), correspondentes aos limites horizontais da região;
-- \(y_min\) e \(y_max\), correspondentes aos limites verticais da região.
+- $(x_min)$ e $(x_max)$, correspondentes aos limites horizontais da região;
+- $(y_min)$ e $(y_max)$, correspondentes aos limites verticais da região.
 
 Antes de prosseguir, o software valida se a área selecionada respeita a resolução máxima permitida de **80×60 pixels**. Caso a condição não seja satisfeita, a seleção é descartada e o usuário é solicitado a repetir o procedimento.
 
@@ -309,28 +313,30 @@ Por fim, a área processada é reinserida em um buffer que contém **a imagem or
 
 ### Fluxograma do Algoritmo de Zoom em Janela
 
-A Figura apresenta o fluxo de execução completo do algoritmo, desde a interação do usuário até a atualização final da imagem exibida no monitor VGA.
+A Figura 1 apresenta o fluxo de execução completo do algoritmo, desde a interação do usuário até a atualização final da imagem exibida no monitor VGA.
+
+<p align="center">
+  <b>Figura 1. Fluxograma de execução do algoritmo de Zoom em Janela.</b>
+</p>
 
 <p align="center">
   <img width="473" height="559" alt="apresenta" src="https://github.com/user-attachments/assets/b09c8ae3-49c7-423a-b7b7-bac6668d77b2" /></p>
 
-<p align="center">
-  <b>Fluxograma de execução do algoritmo de Zoom em Janela.</b>
-</p>
 
 ---
 
 ### Iteração da Imagem Durante o Processamento
 
-A Figura ilustra a evolução da imagem ao longo das principais etapas do algoritmo, evidenciando o recorte da região de interesse, sua centralização no buffer de entrada, a aplicação do zoom pelo coprocessador e a reinserção da área processada na imagem original.
+A Figura 2 ilustra a evolução da imagem ao longo das principais etapas do algoritmo, evidenciando o recorte da região de interesse, sua centralização no buffer de entrada, a aplicação do zoom pelo coprocessador e a reinserção da área processada na imagem original.
+
+<p align="center">
+  <b>Figura 2. Etapas de iteração da imagem durante a execução do algoritmo de Zoom em Janela.</b>
+</p>
 
 <p align="center">
   <img width="1335" height="694" alt="image" src="https://github.com/user-attachments/assets/4e0eace3-9d0d-4bda-bea8-23688a086adb" />
 </p>
 
-<p align="center">
-  <b>Etapas de iteração da imagem durante a execução do algoritmo de Zoom em Janela.</b>
-</p>
 </details>
 
   ---
@@ -388,8 +394,12 @@ Escolha uma opção:
 Opção:
 ```
 
-Neste estado inicial, a imagem previamente carregada na memória do coprocessador é exibida no monitor VGA em resolução 320x240 pixels, convertida para tons de cinza, como a imagem da Figura 1.
-<p align="center">Figura 1. Imagem de Resolução 320x240 em escala de cinza.</p>
+Neste estado inicial, a imagem previamente carregada na memória do coprocessador é exibida no monitor VGA em resolução 320x240 pixels, convertida para tons de cinza, como a imagem da Figura 3.
+> **💡 Observação**
+> 
+> A Figura 3 apresenta a imagem utilizada para testes que pode ser obtida ao selecionar a opção `6. Carregar imagem` e enviar "tigre.bmp" desde que o arquivo correspondente esteja na pasta `API`.
+> 
+<p align="center">Figura 3. Imagem de Resolução 320x240 em escala de cinza.</p>
 <p align="center">
 <img width="400" height="230" alt="image" src="https://github.com/user-attachments/assets/b79c5456-327e-4f36-9c88-26324d39ac58" />
 </p>
@@ -452,11 +462,13 @@ Entra-se então no Modo Interativo, onde não é necessário pressionar Enter ap
 **Resultado Esperado:** A funcionalidade permite isolar detalhes específicos da imagem original. O recorte é expandido na área selecionada, facilitando a inspeção visual de áreas pequenas. Com isso, a combinação de "Vizinho Mais Próximo In" para ampliação com "Média de Blocos" para redução deve mostrar-se eficiente para navegar entre os níveis de detalhe, sendo que a aplicação de um Zoom-Out com "Média de Blocos" retorna à imagem original, enquanto o "Vizinho Mais Próximo-Out" acarreta em ruídos (perda de informação) na imagem, em razão de sua implementação.
 
 <p align="center">Figura 2. Sequência de operação: (a) Seleção da área (pontos ilustrativos destacados em vermelho); (b) Área ampliada.</p>
-(a)
+<p align="center">(a)</p>
 <p align="center">
 <img width="400" height="230" alt="image" src="https://github.com/user-attachments/assets/1d8ef966-4a0b-4271-976b-eb3fbc37eb72" />
 </p>
-(b)
+
+<p align="center">(b)</p>
+
 <p align="center">
 <img width="400" height="230" alt="image" src="https://github.com/user-attachments/assets/7ac4be9a-14e1-4539-85fb-2faf92531b46" />
 </p>
