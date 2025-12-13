@@ -237,9 +237,128 @@ sudo ./main
 
 Os próximos passos serão detalhados na próxima seção, **Testes e Análise de Resultados**.
 
+
+
+</details>
+
+
+
+
+---
+
+
+<details>
+  <summary><h2>🧠 Execução do Algoritmo de Zoom em Janela</h2></summary>
+
+
+Esta seção descreve o fluxo de execução do algoritmo de **Zoom em Janela**, responsável por aplicar operações de ampliação ou redução em uma região específica da imagem, previamente selecionada pelo usuário. O algoritmo foi projetado considerando a limitação do coprocessador gráfico, que opera exclusivamente sobre imagens com resolução fixa de **320×240 pixels**.
+
+Dessa forma, toda a lógica de recorte, centralização e reinserção da região de interesse é realizada em software, no HPS, enquanto o processamento de zoom é delegado ao hardware dedicado na FPGA.
+
+---
+
+### Seleção da Região de Interesse
+
+O processo inicia-se com a interação do usuário através do mouse. Dois cliques consecutivos definem os vértices opostos de um retângulo que representa a região de interesse na imagem exibida no monitor VGA. As coordenadas capturadas correspondem aos pontos  
+\((x_0, y_0)\) e \((x_1, y_1)\).
+
+A partir desses valores, o sistema calcula:
+- \(x_min\) e \(x_max\), correspondentes aos limites horizontais da região;
+- \(y_min\) e \(y_max\), correspondentes aos limites verticais da região.
+
+Antes de prosseguir, o software valida se a área selecionada respeita a resolução máxima permitida de **80×60 pixels**. Caso a condição não seja satisfeita, a seleção é descartada e o usuário é solicitado a repetir o procedimento.
+
+---
+
+### Recorte e Centralização da Subimagem
+
+Com a região validada, o algoritmo realiza o recorte da subimagem diretamente da imagem original. Em seguida, essa subimagem é inserida em um buffer auxiliar de **320×240 pixels**, sendo posicionada de forma centralizada.
+
+A centralização é obtida por meio do cálculo de deslocamentos horizontais e verticais (offsets), definidos como:
+
+- Offset horizontal: \(320 - largura_do_recorte) / 2
+- Offset vertical: \(240 - altura_do_recorte) / 2
+
+Esse procedimento garante que, independentemente da posição original do recorte, a subimagem seja apresentada ao coprocessador sempre alinhada ao centro do frame de entrada.
+
+---
+
+### Processamento de Zoom no Coprocessador
+
+Após a centralização da subimagem no buffer de **320×240 pixels**, o sistema não envia imediatamente os dados ao coprocessador gráfico. Inicialmente, o usuário é solicitado a **selecionar o par de algoritmos de zoom** que será utilizado durante a interação, definindo qual método será aplicado para operações de ampliação (zoom in) e redução (zoom out).
+
+Uma vez configurados os algoritmos, o sistema entra em um **modo interativo**, no qual a comunicação com o coprocessador ocorre somente após a ação explícita do usuário. Ao pressionar a tecla `+`, o buffer centralizado é enviado ao coprocessador para a aplicação do algoritmo de **zoom in** selecionado. De forma análoga, ao pressionar a tecla `-`, o buffer é processado utilizando o algoritmo de **zoom out** correspondente.
+
+Todo o processamento de zoom é realizado em hardware. Os algoritmos disponíveis incluem:
+- Vizinho mais próximo(in);
+- Vizinho mais próximo(out);
+- Replicação de pixels;
+- Média de blocos.
+
+O resultado de cada operação é realimentado no buffer de entrada, permitindo a aplicação de múltiplas iterações consecutivas de zoom.
+
+---
+
+### Extração e Reinserção na Imagem Original
+
+Concluído o processamento, o software extrai exclusivamente a região correspondente ao recorte original, agora modificada pelo zoom. Essa extração considera os mesmos offsets utilizados na etapa de centralização.
+
+Por fim, a área processada é reinserida em um buffer que contém **a imagem original**, exatamente nas coordenadas previamente definidas pelo usuário, e enviada ao processador para ser exibida **no VGA**. As demais regiões da imagem permanecem inalteradas, preservando o conteúdo fora da janela de zoom.
+
+---
+
+### Fluxograma do Algoritmo de Zoom em Janela
+
+A Figura apresenta o fluxo de execução completo do algoritmo, desde a interação do usuário até a atualização final da imagem exibida no monitor VGA.
+
+<p align="center">
+  <img width="473" height="559" alt="apresenta" src="https://github.com/user-attachments/assets/b09c8ae3-49c7-423a-b7b7-bac6668d77b2" /></p>
+
+<p align="center">
+  <b>Fluxograma de execução do algoritmo de Zoom em Janela.</b>
+</p>
+
+---
+
+### Iteração da Imagem Durante o Processamento
+
+A Figura ilustra a evolução da imagem ao longo das principais etapas do algoritmo, evidenciando o recorte da região de interesse, sua centralização no buffer de entrada, a aplicação do zoom pelo coprocessador e a reinserção da área processada na imagem original.
+
+<p align="center">
+  <img width="1335" height="694" alt="image" src="https://github.com/user-attachments/assets/4e0eace3-9d0d-4bda-bea8-23688a086adb" />
+</p>
+
+<p align="center">
+  <b>Etapas de iteração da imagem durante a execução do algoritmo de Zoom em Janela.</b>
+</p>
+</details>
+
+  ---
+
+  <details>
+  <summary><h2>🚧 Limitações do Sistema</h2></summary>
+
+O projeto foi desenvolvido considerando os requisitos do projeto. As principais limitações identificadas são descritas a seguir.
+
+### Limitações de Hardware
+- O coprocessador gráfico opera exclusivamente com imagens de resolução fixa **320×240 pixels**, o que exige que toda a lógica de recorte, centralização e reinserção da região de interesse seja realizada em software no HPS.
+- O tamanho máximo da região de interesse para o modo de **Zoom em Janela** é limitado a **80×60 pixels**, garantindo compatibilidade com os fatores de zoom suportados e evitando perda de informação.
+- O processamento de zoom ocorre sempre sobre um frame completo de **320×240 pixels**, mesmo quando apenas uma subárea da imagem original é modificada.
+
+### Limitações dos Algoritmos de Zoom
+- O uso do algoritmo de **Vizinho Mais Próximo (Zoom Out)** pode introduzir aliasing e perda de informação visual, comportamento esperado dada a natureza do método.
+- No modo de **Zoom em Janela**, o aumento máximo permitido é de **4×** em relação à área selecionada, de forma a preservar a integridade da imagem e respeitar os limites do coprocessador.
+- O **zoom-out** não pode ultrapassar o tamanho original da imagem, ou seja, o nível mínimo de zoom corresponde sempre à resolução real da imagem antes da aplicação de qualquer ampliação.
+
+### Limitações de Interação e Usabilidade
+- A seleção da região de interesse é realizada por meio de dois cliques do mouse, não sendo possível redimensionar ou mover a janela após sua definição.
+- O sistema não oferece suporte a operações adicionais de manipulação de imagem, como rotação, espelhamento ou deslocamento contínuo da área visualizada.
+
+Apesar dessas limitações, o sistema atende plenamente aos requisitos propostos, demonstrando corretamente o funcionamento do zoom em imagens e a comunicação eficiente entre software e hardware dedicado.
 </details>
 
 ---
+
 <details>
   <summary><h2> 🔍Testes e Análise de Resultados</h2></summary>
   
@@ -328,7 +447,7 @@ Entra-se então no Modo Interativo, onde não é necessário pressionar Enter ap
 
 > **💡 Observação**
 >
-> Toda a sequência acima é detalhada na subseção {...} que descreve o algoritmo implementado em C para recorte e zoom em área.
+> Toda a sequência acima é detalhada na seção "Execução do Algoritmo de Zoom em Janela" que descreve o algoritmo implementado em C para recorte e zoom em área.
 
 **Resultado Esperado:** A funcionalidade permite isolar detalhes específicos da imagem original. O recorte é expandido na área selecionada, facilitando a inspeção visual de áreas pequenas. Com isso, a combinação de "Vizinho Mais Próximo In" para ampliação com "Média de Blocos" para redução deve mostrar-se eficiente para navegar entre os níveis de detalhe, sendo que a aplicação de um Zoom-Out com "Média de Blocos" retorna à imagem original, enquanto o "Vizinho Mais Próximo-Out" acarreta em ruídos (perda de informação) na imagem, em razão de sua implementação.
 
