@@ -473,7 +473,7 @@ O usuário pressiona repetidamente a tecla `+` para aplicar zoom-in sucessivos.
 A cada acionamento, a imagem exibida no monitor VGA é ampliada por um fator de 2x (**com limite de três passos de 2x, ou zoom-in total de 8x**), mantendo o comportamento esperado dos algoritmos.
 
 **Resultado esperado:**
-A imagem torna-se progressivamente ampliada, com preservação de bordas e possível pixelização, característica dos métodos. O algoritmo de Replicação de Pixel tende a entregar uma preservação de qualidade melhor em comparação com o Vizinho Mais Próximo.
+A imagem torna-se progressivamente ampliada, com preservação de bordas e possível pixelização, característica dos métodos.
 
 ### 2.2. Zoom Out — Vizinho Mais Próximo e Média de Blocos
 Seleciona-se a opção 3 ou 4. O usuário utiliza a tecla `-` para reduzir a imagem.
