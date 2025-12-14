@@ -25,6 +25,7 @@ O sistema opera através de uma interface híbrida (texto e gráfica via VGA) co
 * **Interação via Mouse:**
   * Uso do mouse para definir, através de dois cliques, uma região de interesse (janela) na tela;
   * Exibição das coordenadas (x, y) do mouse em tempo real na interface de texto;
+  * Limite de janela definido para 80x60 pixels;
   * Exibição do cursor no VGA.
 
 * **Controle de Zoom:**
@@ -80,8 +81,12 @@ O projeto foi desenvolvido no kit de desenvolvimento DE1-SoC, que integra em um 
   - **Teclado:** Conectado ao computador host para interação via terminal    
 
 ## Software
-Foram utilizadas as ferramentas **Quartus Prime** e **Visual Studio Code**, que em conjunto oferecem todo o suporte necessário tanto para o desenvolvimento em FPGA quanto para a implementação da API em Assembly ARMv7 e código C no ambiente Linux do HPS.  
+Foram utilizadas as ferramentas **Quartus Prime** e **Visual Studio Code**, que em conjunto oferecem todo o suporte necessário tanto para o desenvolvimento em FPGA quanto para a implementação da API em Assembly ARMv7 e código C no ambiente Linux do HPS. 
+
 O Quartus Prime possibilita configurar pinos, validar o hardware e gerar o projeto para a placa DE1-SoC, enquanto o Visual Studio Code fornece um ambiente leve e eficiente para edição, organização e compilação do código de software.
+
+O sistema operacional utilizado para o desenvolvimento foi o **Linux Ubuntu**, garantindo um ambiente robusto e compatível com as ferramentas necessárias.
+
 
 ### Quartus Prime
 - Versão utilizada: **23.1 Lite**
@@ -94,12 +99,15 @@ O Quartus Prime possibilita configurar pinos, validar o hardware e gerar o proje
 - Versão utilizada: **1.107.0**
 - Principais ferramentas:
   - **Editor de código**: moderno e interativo, suporta C e Assembly;
-  - **Extensões**: disponibiliza diversas extensões que estilizam o código e facilitam o desenvolvimento da programação. 
+  - **Extensões**: disponibiliza diversas extensões que estilizam o código e facilitam o desenvolvimento da programação.
+
+### Sistema operacional Linux
+- Distribuição: Ubuntu
 </details>
 
 ---
 <details>
-  <summary><h2>🗺Tutorial de Instalação e Configuração</h2></summary>
+  <summary><h2>🗺 Tutorial de Instalação e Configuração</h2></summary>
   
 ## 1. Pré-requisitos
 
@@ -239,7 +247,7 @@ Esses comandos realizam a limpeza, compilação e linkagem da aplicação. Por f
 sudo ./main
 ```
 
-Os próximos passos serão detalhados na próxima seção, **Testes e Análise de Resultados**.
+Os próximos passos serão detalhados na seção **Testes e Análise de Resultados**.
 
 
 
@@ -365,12 +373,62 @@ Apesar dessas limitações, o sistema atende plenamente aos requisitos propostos
 
 ---
 
-<details>
-  <summary><h2> 🔍Testes e Análise de Resultados</h2></summary>
+ <details>
+  <summary><h2>🔧 Mudanças no Hardware e na API</h2></summary>
+A nova funcionalidade de cursor na tela exigiu uma comunicação específica entre o Software (API em Assembly no HPS) e o Hardware (FPGA). Essa implementação se baseia no uso otimizado dos registradores de PIO existentes para transferência de dados.
 
-# Testes
+## API   
+
+A principal modificação na API foi a introdução da rotina `api_update_cursor`, que é responsável por receber as coordenadas do mouse (x, y) e empacotá-las em uma única instrução para o hardware.
+
+```
+api_update_cursor(int x, int y)
+```
+
+Para que o hardware capture as coordenadas, a função constrói o registro de instrução no formato abaixo, que é enviado ao `PIO_INSTRUCTION`:
+
+| DATA_IN | SEL_MEM | Memory Address | Op code
+| :--- | :--- | :--- | :--- |
+| YYYYYYYY | 1 | 00000000XXXXXXXXX | 000
+
+* Op code **Refresh**, usado para sinalizar o comando do cursor.
+* A coordenada X, que vai de 0 a 319, é mapeada para os bits mais baixos do campo **Memory Address** (`MEM_ADDR[8:0]`).
+* O bit de seleção de memória é definido como 1 para distinguir este comando do refresh tradicional.
+* A coordenada Y, que vai de 0 a 239, é mapeada diretamente para o campo `DATA_IN`.
+
+## Hardware
+
+O módulo principal do FPGA foi modificado para receber e processar a instrução de atualização do cursor, bem como para renderizá-lo na saída VGA.
+
+### Processamento na Máquina de Estados (FSM)
+1. Dois registradores, `cursor_x` (9 bits) e `cursor_y` (8 bits), foram adicionados para armazenar a posição atual do cursor na memória do FPGA.
+
+2. No estado IDLE, o sistema verifica a condição para atualização do cursor:
+    * `INSTRUCTION == REFRESH` (Op code `000`);
+    * e `SEL_MEM == 1`.
+
+3. Quando a condição é atendida, a FSM atribui o valor:
+    * `cursor_x` é carregado com os 9 bits da coordenada X, vindos do campo **Memory Address**;
+    * `cursor_y` é carregado com os 8 bits da coordenada Y, vindos do campo `DATA_IN`.
+
+### Lógica de renderização (VGA)
+A lógica de varredura do sinal VGA foi estendida com o sinal `is_cursor` para desenhar o cursor em um formato de **cruz de 5x5 pixels**, com centro nas coordenadas do mouse.
+1. O sinal `is_cursor` é ativado se o pixel atualmente solicitado na varredura (dado pelas coordenadas `next_x` e `next_y` do VGA) satisfizer uma das seguintes condições:
+   * A coordenada X do pixel coincide com a posição do cursor (`cursor_x`), enquanto a coordenada Y está exatamente na linha do cursor (`cursor_y`) ou a 2 pixels de distância (para cima ou para baixo).
+   * A coordenada Y do pixel coincide com a posição do cursor (`cursor_y`), enquanto a coordenada X está exatamente na coluna do cursor (`cursor_x`) ou a 2 pixels de distância (para a esquerda ou para a direita).
+
+2. Quando `is_cursor` está ativo, o pipeline de vídeo envia a cor vermelha para as saídas VGA, sobrescrevendo qualquer dado que viria da memória de imagem.
+ 
+ </details> 
+
+---
+
+<details>
+  <summary><h2>🔍 Testes e Análise de Resultados</h2></summary>
+
+## Testes
   
-## 1. Inicialização do Sistema
+### 1. Inicialização do Sistema
 
 Após a programação da FPGA e a execução do binário no HPS por meio do comando:
   
@@ -406,7 +464,7 @@ Neste estado inicial, a imagem previamente carregada na memória do coprocessado
 <img width="400" height="230" alt="image" src="https://github.com/user-attachments/assets/b79c5456-327e-4f36-9c88-26324d39ac58" />
 </p>
 
-## 2. Testes de Zoom em Imagem Completa
+### 2. Testes de Zoom em Imagem Completa
 Os primeiros testes consistem na aplicação de zoom sobre a imagem inteira, utilizando os algoritmos disponíveis no menu principal da aplicação.
 
 ### 2.1 Zoom In — Vizinho Mais Próximo
@@ -424,7 +482,7 @@ Seleciona-se a opção 3 ou 4. O usuário utiliza a tecla - para reduzir a image
 
 **Resultado Esperado**: O "Vizinho Mais Próximo (Out)" descarta pixels sistematicamente (aliasing potencial), enquanto a "Média de Blocos" realiza uma suavização (binning), resultando em uma imagem reduzida com menos ruído visual.
 
-## 3. Teste de Zoom em Janela (Seleção por Mouse)
+### 3. Teste de Zoom em Janela (Seleção por Mouse)
 A funcionalidade implementada nesta etapa é a capacidade de selecionar uma área da imagem utilizando um mouse USB conectado ao kit de desenvolvimento.
 
 ### 3.1. Interação e Seleção de Área
@@ -463,7 +521,7 @@ Entra-se então no Modo Interativo, onde não é necessário pressionar Enter ap
 
 **Resultado Esperado:** A funcionalidade permite isolar detalhes específicos da imagem original. O recorte é expandido na área selecionada, facilitando a inspeção visual de áreas pequenas. Com isso, a combinação de "Vizinho Mais Próximo In" para ampliação com "Média de Blocos" para redução deve mostrar-se eficiente para navegar entre os níveis de detalhe, sendo que a aplicação de um Zoom-Out com "Média de Blocos" retorna à imagem original, enquanto o "Vizinho Mais Próximo-Out" acarreta em ruídos (perda de informação) na imagem, em razão de sua implementação.
 
-<p align="center">Figura 2. Sequência de operação: (a) Seleção da área (pontos ilustrativos destacados em vermelho); (b) Área ampliada.</p>
+<p align="center">Figura 4. Sequência de operação: (a) Seleção da área (pontos ilustrativos destacados em vermelho); (b) Área ampliada.</p>
 <p align="center">(a)</p>
 <p align="center">
 <img width="400" height="230" alt="image" src="https://github.com/user-attachments/assets/1d8ef966-4a0b-4271-976b-eb3fbc37eb72" />
@@ -475,7 +533,7 @@ Entra-se então no Modo Interativo, onde não é necessário pressionar Enter ap
 <img width="400" height="230" alt="image" src="https://github.com/user-attachments/assets/7ac4be9a-14e1-4539-85fb-2faf92531b46" />
 </p>
 
-# Análise de Resultados
+## Análise de Resultados
 O sistema desenvolvido na plataforma DE1-SoC demonstrou sucesso na integração entre a aplicação em nível de usuário (C), a camada de drivers (Assembly) e o hardware dedicado (FPGA). A solução atendeu aos requisitos de processamento de imagens, permitindo a manipulação de arquivos bitmap com interação via mouse.
 
  ### **1. Comparativo de Algoritmos de Zoom**
@@ -501,7 +559,7 @@ O feedback visual das coordenadas na interface textual auxiliou na validação d
 ### **3. Desempenho do Sistema (HPS + FPGA)**
 A arquitetura mostrou-se eficaz. O processador HPS (ARM) gerenciou a leitura do sistema de arquivos e a lógica de interface, enquanto o coprocessador na FPGA e os drivers garantiram que a manipulação dos dados de vídeo fossem manipulados na CPU. A conversão de imagens de 24 bits para escala de cinza de 8 bits conseguiu adequar o conteúdo à capacidade de exibição do controlador gráfico sem perda perceptível de funcionalidade para o propósito de análise de detalhes em cores da imagem.
 
-# Conclusão
+## Conclusão
 O projeto atingiu seu objetivo de criar um visualizador de imagens interativo com operações de zoom e funcional. Com diferenças entre algoritmos implementados, observa-se que o zoom em janela foi executado de forma bem sucedida, embora no método Vizinho Mais Próximo Out tenha apresentado qualidade inferior comparada ao de Média de Blocos, gerando imagens com ruídos.
 
 </details>
