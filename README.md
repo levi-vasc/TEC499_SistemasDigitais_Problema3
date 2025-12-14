@@ -467,16 +467,16 @@ Neste estado inicial, a imagem previamente carregada na memória do coprocessado
 ### 2. Testes de Zoom em Imagem Completa
 Os primeiros testes consistem na aplicação de zoom sobre a imagem inteira, utilizando os algoritmos disponíveis no menu principal da aplicação.
 
-### 2.1 Zoom In — Vizinho Mais Próximo
-Seleciona-se a opção 1 no menu.
+### 2.1 Zoom In — Vizinho Mais Próximo e Replicação de Pixel
+Seleciona-se a opção 1 ou 2 no menu.
 O usuário pressiona repetidamente a tecla `+` para aplicar zoom-in sucessivos.
-A cada acionamento, a imagem exibida no monitor VGA é ampliada por um fator de 2x (**com limite de dois passos de 2x, ou zoom-in/out total de 4x**), mantendo o comportamento esperado do algoritmo de vizinho mais próximo.
+A cada acionamento, a imagem exibida no monitor VGA é ampliada por um fator de 2x (**com limite de três passos de 2x, ou zoom-in total de 8x**), mantendo o comportamento esperado dos algoritmos.
 
 **Resultado esperado:**
-A imagem torna-se progressivamente ampliada, com preservação de bordas e possível pixelização, característica do método.
+A imagem torna-se progressivamente ampliada, com preservação de bordas e possível pixelização, característica dos métodos. O algoritmo de Replicação de Pixel tende a entregar uma preservação de qualidade melhor em comparação com o Vizinho Mais Próximo.
 
 ### 2.2. Zoom Out — Vizinho Mais Próximo e Média de Blocos
-Seleciona-se a opção 3 ou 4. O usuário utiliza a tecla - para reduzir a imagem.
+Seleciona-se a opção 3 ou 4. O usuário utiliza a tecla `-` para reduzir a imagem.
 
 **Comportamento**: A imagem é reduzida e centralizada ou alinhada conforme a lógica de endereçamento do hardware.
 
